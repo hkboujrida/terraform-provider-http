@@ -25,6 +25,13 @@ func dataSource() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"verb": {
+				Type:     schema.TypeString,
+				Required: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 
 			"request_headers": {
 				Type:     schema.TypeMap,
@@ -33,8 +40,15 @@ func dataSource() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"request_body": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 
-			"body": {
+			"response_body": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Elem: &schema.Schema{
@@ -55,11 +69,13 @@ func dataSource() *schema.Resource {
 
 func dataSourceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) (diags diag.Diagnostics) {
 	url := d.Get("url").(string)
+	verb := d.Get("verb").(string)
 	headers := d.Get("request_headers").(map[string]interface{})
+	requestBody := d.Get("request_body").(string)
 
 	client := &http.Client{}
 
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, verb, url, strings.NewReader(requestBody))
 	if err != nil {
 		return append(diags, diag.Errorf("Error creating request: %s", err)...)
 	}
@@ -100,7 +116,7 @@ func dataSourceRead(ctx context.Context, d *schema.ResourceData, meta interface{
 		responseHeaders[k] = strings.Join(v, ", ")
 	}
 
-	d.Set("body", string(bytes))
+	d.Set("response_body", string(bytes))
 	if err = d.Set("response_headers", responseHeaders); err != nil {
 		return append(diags, diag.Errorf("Error setting HTTP response headers: %s", err)...)
 	}

@@ -18,10 +18,11 @@ type TestHttpMock struct {
 const testDataSourceConfig_basic = `
 data "http" "http_test" {
   url = "%s/meta_%d.txt"
+  verb = "GET"
 }
 
 output "body" {
-  value = data.http.http_test.body
+  value = data.http.http_test.response_body
 }
 
 output "response_headers" {
@@ -96,6 +97,7 @@ func TestDataSource_http404(t *testing.T) {
 const testDataSourceConfig_withHeaders = `
 data "http" "http_test" {
   url = "%s/restricted/meta_%d.txt"
+  verb = "GET"
 
   request_headers = {
     "Authorization" = "Zm9vOmJhcg=="
@@ -103,7 +105,7 @@ data "http" "http_test" {
 }
 
 output "body" {
-  value = data.http.http_test.body
+  value = data.http.http_test.response_body
 }
 `
 
@@ -142,10 +144,11 @@ func TestDataSource_withHeaders200(t *testing.T) {
 const testDataSourceConfig_utf8 = `
 data "http" "http_test" {
   url = "%s/utf-8/meta_%d.txt"
+  verb = "GET"
 }
 
 output "body" {
-  value = "${data.http.http_test.body}"
+  value = "${data.http.http_test.response_body}"
 }
 `
 
@@ -184,10 +187,11 @@ func TestDataSource_utf8(t *testing.T) {
 const testDataSourceConfig_utf16 = `
 data "http" "http_test" {
   url = "%s/utf-16/meta_%d.txt"
+  verb = "GET"
 }
 
 output "body" {
-  value = "${data.http.http_test.body}"
+  value = "${data.http.http_test.response_body}"
 }
 `
 
